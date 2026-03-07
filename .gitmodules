@@ -1,0 +1,6 @@
+[submodule "ZPI-Desktop-App"]
+	path = ZPI-Desktop-App
+	url = https://github.com/JakubNatonek/ZPI-Desktop-App.git
+[submodule "ZPI-Desktop-Backend"]
+	path = ZPI-Desktop-Backend
+	url = https://github.com/JakubNatonek/ZPI-Desktop-Backend.git

@@ -1,15 +1,37 @@
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: zpi-desktop-db
+    environment:
+      POSTGRES_DB: zpidb
+      POSTGRES_USER: userzpi
+      POSTGRES_PASSWORD: userzpi#
+    expose:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U userzpi -d zpidb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   backend:
     build:
       context: ./ZPI-Desktop-Backend
       dockerfile: Dockerfile
     container_name: zpi-desktop-backend
-    expose:
-      - "8000"
     environment:
       PYTHONUNBUFFERED: 1
+      DATABASE_URL: postgresql://userzpi:userzpi%23@db:5432/zpidb
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/docs')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -25,3 +47,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  postgres_data:
